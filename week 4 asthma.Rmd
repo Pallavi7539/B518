@@ -1,0 +1,213 @@
+---
+title: "asthma dataset"
+author: "Sai Pallavi"
+date: "2024-09-20"
+output: pdf_document
+---
+
+question:1
+
+```{r}
+library(tidyselect)
+library(dplyr)
+```
+
+```{r}
+`Asthma data set` <- read.csv("C:/Users/saipa/OneDrive/Desktop/dataset/dataset.csv")
+```
+
+```{r}
+#View(`Asthma data set`)
+```
+
+```{r}
+head(`Asthma data set`)
+```
+
+```{r}
+summary(`Asthma data set`$Gender)
+
+```
+
+# this as a dataset with nearly an equal number of Male and Female individuals, since the mean is approximately 0.4933.
+
+```{r}
+summary(`Asthma data set`$Smoking)
+```
+
+#Only about 14.17% of the individuals in your dataset are smokers, while the majority (85.83%) are non-smokers.
+
+```{r}
+# Calculate probabilities for Gender
+prob.gender <- prop.table(table(`Asthma data set`$Gender))
+# Display probabilities
+prob.gender
+```
+
+```{r}
+# Calculate probabilities for Smoking
+prob.Smoking <- prop.table(table(`Asthma data set`$Smoking))
+# Display probabilities
+prob.Smoking
+```
+
+```{r}
+# Total population count
+total.population <- nrow(`Asthma data set`)
+
+# Display the total population count
+total.population
+```
+
+```{r}
+P.males=0.506689
+p.females=0.493311
+p.smoking.males=0.8582776
+p.smoking.females=0.1417224
+total.population=2392
+```
+
+```{r}
+# Define parameters
+p.male <- 0.506689
+p.female <- 0.493311
+p.Smoking.male <- 0.8582776
+p.Smoking.female <- 0.1417224
+total.population <- 2392
+
+# Create empty vectors to store results
+Gender <- vector("numeric", total.population)
+Smoking <- vector("numeric", total.population)
+
+# Set the seed for reproducibility
+set.seed(2023)
+
+# Assign gender (0 for male, 1 for female)
+Gender <- sample(c(0, 1), size = total.population, prob = c(p.male, p.female),
+                 replace = TRUE)
+
+# Assign smoking status based on gender
+for (k in 1:total.population) {
+  if (Gender[k] == 0) {
+    Smoking[k] <- sample(c(0, 1), prob = c(1 - p.Smoking.male, p.Smoking.male),
+                         size = 1, replace = TRUE) # 0 for non-smoker, 1 for smoker
+  }
+  
+  if (Gender[k] == 1) {
+    Smoking[k] <- sample(c(0, 1), prob = c(1 - p.Smoking.female, p.Smoking.female),
+                         size = 1, replace = TRUE)
+  }
+}
+
+# View results
+addmargins(table(Gender, Smoking))
+
+```
+
+```{r}
+#Probability of female smoking
+sum(Gender == 1 & Smoking == 1)/total.population
+```
+
+#5.81% are female smokers
+
+```{r}
+#Probability of smoking
+sum(Smoking)/total.population
+```
+
+#51.37% of the total population are smokers
+
+question 2
+
+```         
+```
+
+```         
+```
+
+
+```{r}
+contingency <- `Asthma data set` |> 
+  select(Smoking,Diagnosis)
+contingency_table <- table(contingency$Smoking,contingency$Diagnosis)
+contingency_table
+```
+
+```{r}
+# Extracting values from the matrix
+TP <- contingency_table["1", "1"]  # True Positives
+TN <- contingency_table["0", "0"]    # True Negatives
+FP <- contingency_table["1", "0"]   # False Positives
+FN <- contingency_table["0", "1"]     # False Negatives
+
+# Sensitivity
+sensitivity <- TP / (TP + FN)
+
+# Specificity
+specificity <- TN / (TN + FP)
+
+# Prevalence
+total_population <- sum(contingency_table)
+prevalence <- (TP + FN) / total.population
+
+# Display results
+cat("Sensitivity:", sensitivity, "\n")
+cat("Specificity:", specificity, "\n")
+cat("Prevalence:", prevalence, "\n")
+
+```
+
+```{r}
+# Parameters
+prevalence <- 0.051          # Change this value as needed (e.g., 10%)
+sensitivity <- 0.11        # Change to your sensitivity value
+specificity <- 0.85        # Change to your specificity value
+total.population <-2392     # Total population size
+
+# Expected number of cases
+expected.cases <- total.population * prevalence
+cat("Expected Cases:", expected.cases, "\n")
+
+# Expected number of non-cases
+expected.noncases <- total.population - expected.cases
+
+
+
+```
+
+```{r}
+expected.noncases = total.population - expected.cases
+expected.noncases
+```
+
+```{r}
+expected.true.positives = expected.cases * sensitivity
+expected.true.positives
+
+expected.false.positives = expected.noncases * (1 - specificity)
+expected.false.positives
+
+total.expected.positives = expected.true.positives + expected.false.positives
+total.expected.positives
+
+```
+
+```{r}
+
+expected.false.negatives = expected.cases * (1 - sensitivity)
+expected.false.negatives
+
+expected.true.negatives = expected.noncases * specificity
+expected.true.negatives
+
+total.expected.negatives = expected.true.negatives + expected.false.negatives
+total.expected.negatives
+```
+
+```{r}
+ppv=expected.true.positives/total.expected.positives
+npv = expected.true.negatives/total.expected.negatives
+ppv
+npv
+```
